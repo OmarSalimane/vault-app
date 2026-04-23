@@ -1,0 +1,46 @@
+name: Vault 2.1 Automated Deployment
+
+# 1. When does this run? Every time you push to the 'main' branch.
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  deploy-to-aws:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step A: GitHub gets your latest code
+      - name: Checkout Latest Code
+        uses: actions/checkout@v4
+
+      # Step B: Securely copy the files to your AWS Server
+      - name: Copy Files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ubuntu
+          key: ${{ secrets.AWS_SSH_KEY }}
+          source: "."
+          target: "/home/ubuntu/VAULT2.1"
+          rm: true 
+
+      # Step C: Log into AWS, bypass the permission blocks, and build Docker
+      - name: Execute Docker Compose on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ubuntu
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/VAULT2.1
+            
+            # 1. Fix the Windows node_modules permission bug
+            echo "node_modules" | sudo tee vault-ui/.dockerignore > /dev/null
+            
+            # 2. Inject your AWS IP into the frontend
+            echo "VITE_API_URL=http://${{ secrets.AWS_HOST }}:3000" | sudo tee vault-ui/.env > /dev/null
+            
+            # 3. Restart the Docker Engine
+            sudo docker compose up -d --build
