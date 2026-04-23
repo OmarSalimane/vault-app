@@ -1,6 +1,5 @@
 name: Vault Automated Deployment
 
-# 1. When does this run? Every time you push to the 'main' branch.
 on:
   push:
     branches:
@@ -15,7 +14,19 @@ jobs:
       - name: Checkout Latest Code
         uses: actions/checkout@v4
 
-      # Step B: Securely copy the files to your AWS Server
+      # Step B: THE FIX - Use sudo to destroy the old root-locked files
+      - name: Clean Old Root Files
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ubuntu
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            sudo rm -rf /home/ubuntu/VAULT
+            mkdir -p /home/ubuntu/VAULT
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/VAULT
+
+      # Step C: Securely copy the files (rm is now false since we just cleaned it)
       - name: Copy Files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -24,9 +35,9 @@ jobs:
           key: ${{ secrets.AWS_SSH_KEY }}
           source: "."
           target: "/home/ubuntu/VAULT"
-          rm: true 
+          rm: false 
 
-      # Step C: Log into AWS, bypass the permission blocks, and build Docker
+      # Step D: Log into AWS, inject IPs, and build Docker
       - name: Execute Docker Compose on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -36,11 +47,11 @@ jobs:
           script: |
             cd /home/ubuntu/VAULT
             
-            # 1. Fix the Windows node_modules permission bug
+            # Fix the Windows node_modules permission bug
             echo "node_modules" | sudo tee vault-ui/.dockerignore > /dev/null
             
-            # 2. Inject your AWS IP into the frontend
+            # Inject your AWS IP into the frontend
             echo "VITE_API_URL=http://${{ secrets.AWS_HOST }}:3000" | sudo tee vault-ui/.env > /dev/null
             
-            # 3. Restart the Docker Engine
+            # Restart the Docker Engine
             sudo docker compose up -d --build
