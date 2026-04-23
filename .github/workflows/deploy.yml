@@ -1,4 +1,4 @@
-name: Vault 2.1 Automated Deployment
+name: Vault Automated Deployment
 
 # 1. When does this run? Every time you push to the 'main' branch.
 on:
@@ -23,7 +23,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
           source: "."
-          target: "/home/ubuntu/VAULT2.1"
+          target: "/home/ubuntu/VAULT"
           rm: true 
 
       # Step C: Log into AWS, bypass the permission blocks, and build Docker
@@ -34,7 +34,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-            cd /home/ubuntu/VAULT2.1
+            cd /home/ubuntu/VAULT
             
             # 1. Fix the Windows node_modules permission bug
             echo "node_modules" | sudo tee vault-ui/.dockerignore > /dev/null
