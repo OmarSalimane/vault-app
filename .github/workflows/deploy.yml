@@ -47,11 +47,14 @@ jobs:
           script: |
             cd /home/ubuntu/VAULT
             
-            # Fix the Windows node_modules permission bug
+            # 1. Fix the Windows node_modules permission bug
             echo "node_modules" | sudo tee vault-ui/.dockerignore > /dev/null
             
-            # Inject your AWS IP into the frontend
+            # 2. Inject your AWS IP into the frontend
             echo "VITE_API_URL=http://${{ secrets.AWS_HOST }}:3000" | sudo tee vault-ui/.env > /dev/null
             
-            # Restart the Docker Engine
+            # 3. THE FIX: Inject the JWT Secret into the backend
+            echo "JWT_SECRET=VaultProductionSecret998877!" | sudo tee vault-backend/.env > /dev/null
+            
+            # 4. Restart the Docker Engine
             sudo docker compose up -d --build

@@ -19,16 +19,18 @@ export default function Dashboard() {
       headers: { 'Authorization': `Bearer ${token}` } 
     })
     .then(r => r.json())
-    .then(fetchedData => setData(fetchedData))
+    .then(fetchedData => {
+      // THE FIX: If the backend sends an error, boot them to login
+      if (fetchedData.error) {
+        console.error("Auth Error:", fetchedData.error);
+        localStorage.removeItem('vault_token');
+        navigate('/'); 
+      } else {
+        setData(fetchedData);
+      }
+    })
     .catch(err => console.error("Failed to load dashboard:", err));
-  }, []);
-
-  if (!data) return (
-    <div className="flex h-full flex-col items-center justify-center text-slate-400 gap-4">
-      <Activity className="animate-spin text-[#5eb1e6]" size={36} />
-      <p className="animate-pulse">Loading secure telemetry...</p>
-    </div>
-  );
+  }, [navigate]);
 
   return (
     <div className="p-4 md:p-6 md:px-8 w-full text-slate-200 h-full overflow-y-auto max-w-[1400px] mx-auto">
