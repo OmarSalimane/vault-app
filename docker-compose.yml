@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: vaultdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # This line automatically runs your SQL script on startup!
+      - ./vault-backend/database.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: ./vault-backend
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://postgres:password@db:5432/vaultdb
+    depends_on:
+      - db
+
+  frontend:
+    build: ./vault-ui
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
