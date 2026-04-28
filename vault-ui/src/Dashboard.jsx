@@ -7,7 +7,8 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 export default function Dashboard() {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
-  
+  const [loading, setLoading] = useState(true);
+
   // Get user info and calculate a nice greeting
   const user = JSON.parse(localStorage.getItem('vault_user') || '{"name": "User"}');
   const hour = new Date().getHours();
@@ -15,22 +16,29 @@ export default function Dashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem('vault_token');
-    fetch(`${API_BASE}/api/dashboard/full`, { 
-      headers: { 'Authorization': `Bearer ${token}` } 
+    fetch(`${API_BASE}/api/dashboard/full`, {
+      headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(r => r.json())
     .then(fetchedData => {
-      // THE FIX: If the backend sends an error, boot them to login
       if (fetchedData.error) {
-        console.error("Auth Error:", fetchedData.error);
         localStorage.removeItem('vault_token');
-        navigate('/'); 
+        navigate('/');
       } else {
         setData(fetchedData);
       }
     })
-    .catch(err => console.error("Failed to load dashboard:", err));
+    .catch(err => console.error("Failed to load dashboard:", err))
+    .finally(() => setLoading(false));
   }, [navigate]);
+
+  if (loading || !data) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-slate-400 text-sm">Loading dashboard...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6 md:px-8 w-full text-slate-200 h-full overflow-y-auto max-w-[1400px] mx-auto">

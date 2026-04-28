@@ -88,7 +88,7 @@ app.get('/api/dashboard/full', requirePermission(null), async (req, res) => {
 });
 
 // ==========================================
-// STANDARD CRUD APIs (Do Not Modify)
+// STANDARD CRUD APIs
 // ==========================================
 app.get('/api/assets', requirePermission(null), async (req, res) => {
     try {
@@ -340,10 +340,9 @@ app.delete('/api/software/:id/revoke/:asset_id', requirePermission('can_manage_s
 // USER MANAGEMENT & DEEP DIVES
 // ==========================================
 
-// GET all users (Live Table Feed) - FIXED
+// GET all users (Live Table Feed)
 app.get('/api/users', requirePermission(null), async (req, res) => {
     try {
-        // Removed 'last_login' to perfectly match our schema, replaced with 'created_at'
         const result = await pool.query(`
             SELECT u.id, u.first_name || ' ' || u.last_name as name, u.email, u.job_title, 
             u.is_active, u.created_at, r.role_name, g.group_name as department 

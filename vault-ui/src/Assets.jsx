@@ -4,7 +4,7 @@ export default function Assets() {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // FETCH DATA FROM REAL BACKEND
+  // FETCH DATA FROM REAL BACKEND 18.171.155.174
   useEffect(() => {
     fetch('http://35.178.42.137/api/assets')
       .then(res => res.json())

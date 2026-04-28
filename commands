@@ -5,6 +5,5 @@ docker compose restart backend
 
 docker compose up -d --build
 
-<span className="font-bold text-lg text-white tracking-wide">VAULT <span className="text-orange-500 text-xs align-top">2.0</span></span>
 
 docker compose down -v && docker compose up -d --build

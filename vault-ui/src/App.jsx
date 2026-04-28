@@ -1,37 +1,3 @@
-/* import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
-import Login from './Login';
-import Layout from './Layout';
-import Dashboard from './Dashboard';
-import Views from './Views';
-import NewAsset from './NewAsset';
-import Categorization from './Categorization';
-import Software from './Software';
-import Members from './Members';
-import RiskInsights from './Risk';
-
-function App() {
-  return (
-    <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/assets/views" element={<Views />} /> 
-          <Route path="/assets/new" element={<NewAsset />} /> 
-          <Route path="/assets/categorization" element={<Categorization />} />
-          <Route path="/software" element={<Software />} />
-          <Route path="/members" element={<Members />} />
-          <Route path="/risk" element={<RiskInsights />} />
-        </Routes>
-      </Layout>
-    </BrowserRouter>
-  );
-}
-
-export default App;*/
-
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
@@ -70,7 +36,6 @@ export default function App() {
   // 4. Authenticated View: Render the standard Router and Layout
   return (
     <BrowserRouter>
-      {/* Pass handleLogout to Layout so you can hook it up to a sign-out button in your sidebar/header */}
       <Layout onLogout={handleLogout}>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" />} />

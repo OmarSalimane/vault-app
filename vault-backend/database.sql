@@ -29,12 +29,12 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. ASSETS (Now with Category & Department Tracking)
+-- 4. ASSETS 
 CREATE TABLE assets (
     id SERIAL PRIMARY KEY,
     hostname VARCHAR(100) UNIQUE NOT NULL,
     type VARCHAR(50) NOT NULL,
-    category VARCHAR(100) DEFAULT 'Uncategorized', -- e.g., Networking, Workstation, IoT
+    category VARCHAR(100) DEFAULT 'Uncategorized', 
     manufacturer VARCHAR(100),
     model VARCHAR(100),
     serial_number VARCHAR(100) UNIQUE NOT NULL,
@@ -44,8 +44,8 @@ CREATE TABLE assets (
     domain VARCHAR(100) DEFAULT 'vault.local',
     status VARCHAR(50) DEFAULT 'Available',
     os_lifecycle VARCHAR(50) DEFAULT 'Supported',
-    department_id INTEGER REFERENCES user_groups(id) ON DELETE SET NULL, -- Hardware ownership
-    custodian_id INTEGER REFERENCES users(id) ON DELETE SET NULL, -- Personal ownership
+    department_id INTEGER REFERENCES user_groups(id) ON DELETE SET NULL, 
+    custodian_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     last_scan TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -61,7 +61,7 @@ CREATE TABLE software_licenses (
     brand_color VARCHAR(50) DEFAULT 'bg-blue-500'
 );
 
--- 6. ASSET_SOFTWARE MAPPING (Many-to-Many)
+-- 6. ASSET_SOFTWARE MAPPING
 CREATE TABLE asset_software (
     asset_id INTEGER REFERENCES assets(id) ON DELETE CASCADE,
     software_id INTEGER REFERENCES software_licenses(id) ON DELETE CASCADE,
@@ -94,7 +94,6 @@ INSERT INTO user_groups (group_name, description) VALUES
 ('Engineering', 'Software Devs'), ('Marketing', 'Global Marketing'),
 ('Human Resources', 'HR & Recruiting'), ('Finance', 'Accounting & Payroll');
 
--- Users (All passwords are 'password123')
 INSERT INTO users (first_name, last_name, email, password_hash, job_title, role_id, group_id) VALUES 
 ('Marcus', 'Vance', 'm.vance@vault.io', '$2b$10$Z21t/ylrJeHIP2a0DYujYOTkFacP4N9jhIGbJ0RFmXsa0WkRTAhHG', 'IAM Engineer', 1, 2),
 ('Sarah', 'Jenkins', 's.jenkins@vault.io', '$2b$10$Z21t/ylrJeHIP2a0DYujYOTkFacP4N9jhIGbJ0RFmXsa0WkRTAhHG', 'IT Asset Manager', 2, 1),
@@ -105,7 +104,6 @@ INSERT INTO users (first_name, last_name, email, password_hash, job_title, role_
 ('Amos', 'Burton', 'a.burton@vault.io', '$2b$10$Z21t/ylrJeHIP2a0DYujYOTkFacP4N9jhIGbJ0RFmXsa0WkRTAhHG', 'Mechanic / Facilities', 4, 1),
 ('Chrisjen', 'Avasarala', 'c.avasarala@vault.io', '$2b$10$Z21t/ylrJeHIP2a0DYujYOTkFacP4N9jhIGbJ0RFmXsa0WkRTAhHG', 'CFO', 4, 6);
 
--- Assets spanning different Departments and Categories
 INSERT INTO assets (hostname, type, category, manufacturer, model, serial_number, mac_address, ip_address, location, status, os_lifecycle, department_id, custodian_id) VALUES 
 ('LON-SRV-01', 'Server', 'Data Center', 'Dell', 'PowerEdge R740', 'DLX9921', 'AA:BB:CC:DD:EE:01', '10.22.18.40', 'London Office', 'In Use', 'Supported', 1, 2),
 ('NYC-LT-042', 'Workstation', 'End User Computing', 'Apple', 'MacBook Pro', 'C02CG12345', '11:22:33:44:55:01', '10.12.34.87', 'New York HQ', 'Checked Out', 'End of Life', 4, 4),
@@ -129,12 +127,12 @@ INSERT INTO software_licenses (software_name, publisher, license_type, total_sea
 ('1Password Business', 'AgileBits', 'SaaS', 150, '2026-03-01', 'Cross-platform', 'bg-blue-700'),
 ('Zendesk Suite', 'Zendesk', 'SaaS', 15, '2026-07-15', 'Web', 'bg-emerald-600');
 
--- Map these licenses to your existing assets (Simulating which machines/users are consuming seats)
+
 INSERT INTO asset_software (asset_id, software_id) VALUES 
-(1, 5), (1, 8), -- Server gets CrowdStrike & Datadog
-(2, 1), (2, 2), (2, 4), (2, 5), (2, 6), (2, 9), -- Elena's Mac gets Workspace, Slack, GitHub, CrowdStrike, Figma, 1Password
-(5, 1), (5, 2), (5, 3), (5, 4), (5, 5), (5, 7), (5, 9), -- Dev's PC gets Workspace, Slack, Jira, GitHub, CrowdStrike, Notion, 1Password
-(7, 1), (7, 2), (7, 5), (7, 9); -- Another PC gets Workspace, Slack, Crowdstrike, 1Password
+(1, 5), (1, 8), 
+(2, 1), (2, 2), (2, 4), (2, 5), (2, 6), (2, 9), 
+(5, 1), (5, 2), (5, 3), (5, 4), (5, 5), (5, 7), (5, 9), 
+(7, 1), (7, 2), (7, 5), (7, 9); 
 -- Risks
 INSERT INTO risks (asset_id, vulnerability, severity, risk_type, cvss_score, status) VALUES 
 (1, 'CVE-2023-4911 (Looney Tunables)', 'Critical', 'OS Flaw', 10.0, 'Unpatched'),
